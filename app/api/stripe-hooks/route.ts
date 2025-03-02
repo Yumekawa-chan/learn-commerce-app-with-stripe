@@ -31,15 +31,40 @@ export async function POST(req: NextRequest) {
           })
           .eq('stripe_customer', event.data.object.customer as string);
         break;
+      case 'customer.subscription.updated':
+        const customerSubscriptionUpdated = event.data.object;
+
+        if (customerSubscriptionUpdated.status === 'canceled') {
+          await supabase
+            .from('profile')
+            .update({
+              is_subscribed: false,
+              interval: null,
+            })
+            .eq('stripe_customer', event.data.object.customer as string);
+        } else {
+          await supabase
+            .from('profile')
+            .update({
+              is_subscribed: true,
+              interval: customerSubscriptionUpdated.items.data[0].plan.interval,
+            })
+            .eq('stripe_customer', event.data.object.customer as string);
+        }
+        break;
       case 'customer.subscription.deleted':
-        await supabase.from('profile').update({
-          is_subscribed: false,
-        });
+        await supabase
+          .from('profile')
+          .update({
+            is_subscribed: false,
+            interval: null,
+          })
+          .eq('stripe_customer', event.data.object.customer as string);
         break;
     }
-
     return NextResponse.json({ received: true });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 401 });
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    return NextResponse.json({ error: errorMessage }, { status: 401 });
   }
 }

@@ -17,7 +17,7 @@ import { cookies } from 'next/headers';
 import { Database } from '@/lib/database.type';
 import SubscriptionButton from '@/components/checkout/SubscriptionButton';
 import AuthServerButton from '@/components/auth/AuthServerButton';
-
+import Link from 'next/link';
 interface Plan {
   id: string;
   name: string;
@@ -76,27 +76,92 @@ const PricingPage = async () => {
   const showManageSubscriptionButton = !!user.session && profile?.is_subscribed;
 
   return (
-    <div className='w-full max-w-3xl mx-auto py-16 flex justify-around'>
-      {plans.map((plan) => (
-        <Card className='shadow-md' key={plan.id}>
-          <CardHeader>
-            <CardTitle>{plan.name}</CardTitle>
-            <CardDescription>{plan.name}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p>
-              {plan.price}円 / {transInterval(plan.interval)}
-            </p>
-          </CardContent>
-          <CardFooter>
-            {showSubscribeButton && <SubscriptionButton planId={plan.id} />}
-            {showCreateAccountButton && <AuthServerButton />}
-            {showManageSubscriptionButton && (
-              <Button>サブスクリプションを管理する</Button>
-            )}
-          </CardFooter>
-        </Card>
-      ))}
+    <div className='min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-16 px-4'>
+      <div className='max-w-6xl mx-auto'>
+        <div className='text-center mb-16'>
+          <h1 className='text-4xl font-bold text-gray-900 mb-4'>料金プラン</h1>
+          <p className='text-xl text-gray-600 max-w-2xl mx-auto'>
+            あなたのニーズに合わせた最適なプランをお選びください
+          </p>
+        </div>
+
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
+          {plans.map((plan) => (
+            <Card
+              key={plan.id}
+              className='border-2 border-gray-200 hover:border-indigo-500 transition-all duration-300 hover:shadow-xl'
+            >
+              <CardHeader className='text-center pb-0'>
+                <CardTitle className='text-2xl font-bold text-indigo-700'>
+                  {plan.name}
+                </CardTitle>
+                <CardDescription className='text-gray-500'>
+                  {plan.name}プラン詳細
+                </CardDescription>
+              </CardHeader>
+
+              <CardContent className='text-center py-6'>
+                <p className='text-5xl font-bold text-gray-900 mb-2'>
+                  {parseInt(plan.price!).toLocaleString()}
+                  <span className='text-xl font-normal text-gray-700'>円</span>
+                </p>
+                <p className='text-gray-600'>
+                  / {transInterval(plan.interval)}
+                </p>
+
+                <div className='mt-6 border-t border-gray-100 pt-6'>
+                  <ul className='space-y-3 text-left mx-auto w-fit'>
+                    <li className='flex items-center'>
+                      <svg
+                        className='h-5 w-5 text-green-500 mr-2'
+                        fill='none'
+                        viewBox='0 0 24 24'
+                        stroke='currentColor'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          strokeWidth={2}
+                          d='M5 13l4 4L19 7'
+                        />
+                      </svg>
+                      <span>プラン特典 1</span>
+                    </li>
+                    <li className='flex items-center'>
+                      <svg
+                        className='h-5 w-5 text-green-500 mr-2'
+                        fill='none'
+                        viewBox='0 0 24 24'
+                        stroke='currentColor'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          strokeWidth={2}
+                          d='M5 13l4 4L19 7'
+                        />
+                      </svg>
+                      <span>プラン特典 2</span>
+                    </li>
+                  </ul>
+                </div>
+              </CardContent>
+
+              <CardFooter className='bg-gray-50 px-6 py-4 flex justify-center'>
+                {showSubscribeButton && <SubscriptionButton planId={plan.id} />}
+                {showCreateAccountButton && <AuthServerButton />}
+                {showManageSubscriptionButton && (
+                  <Button className='w-full bg-indigo-600 hover:bg-indigo-700 text-white'>
+                    <Link href='/dashboard' className='w-full inline-block'>
+                      サブスクリプションを管理する
+                    </Link>
+                  </Button>
+                )}
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
